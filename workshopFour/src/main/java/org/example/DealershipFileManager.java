@@ -1,84 +1,104 @@
 package org.example;
 
-import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.Scanner;
 
+
 public class DealershipFileManager {
+    private static final String FILE_PATH = "inventory.csv";
 
-    private static final String FILE_PATH = "src/main/resources/inventory.csv";
+    /* ---------- public API ---------- */
 
-    /* ---------- READ ---------- */
     public Dealership getDealership() {
-        Dealership dealership = null;
-
-        try (FileInputStream fs = new FileInputStream(FILE_PATH);
-             Scanner scanner   = new Scanner(fs)) {
-
-            // header: name|address|phone
-            if (!scanner.hasNextLine()) {
-                System.err.println("inventory.csv is empty!");
-                return null;
-            }
-
-            String[] header = scanner.nextLine().split("\\|");
-            if (header.length != 3) {
-                System.err.println("Header line malformed in inventory.csv");
-                return null;
-            }
-            dealership = new Dealership(
-                    header[0].trim(), header[1].trim(), header[2].trim());
-
-            // vehicles
-            while (scanner.hasNextLine()) {
-                String[] row = scanner.nextLine().split("\\|");
-                if (row.length != 8) continue;           // skip bad rows
-
-                int    vin   = Integer.parseInt(row[0]);
-                int    year  = Integer.parseInt(row[1]);
-                String make  = row[2];
-                String model = row[3];
-                VehicleType type  = VehicleType.valueOf(row[4].trim().toUpperCase());
-                String color = row[5];
-                int    odo   = Integer.parseInt(row[6]);
-                double price = Double.parseDouble(row[7]);
-
-                dealership.addVehicle(
-                        new Vehicle(vin, year, make, model, color, type, odo, price));
-            }
-        }
-        catch (FileNotFoundException e) {
-            System.err.println("Could not find inventory.csv at " + FILE_PATH);
-        }
-        catch (IOException | IllegalArgumentException e) {
-            e.printStackTrace();
-        }
-
-        return dealership;
+        File file = new File(FILE_PATH);
+        if (!file.exists()) copyDefaultResource(file);
+        return loadFromFile(file);
     }
 
-    /* ---------- WRITE ---------- */
-    public void saveDealership(Dealership dealership) {
-        if (dealership == null) return;
-
-        try (FileWriter fw = new FileWriter(FILE_PATH, false)) {   // overwrite
-            fw.write(String.format("%s|%s|%s%n",
-                    dealership.getName(),
-                    dealership.getAddress(),
-                    dealership.getPhone()));
-
-            for (Vehicle v : dealership.getAllVehicles()) {
-                fw.write(String.format(
-                        "%d|%d|%s|%s|%s|%s|%d|%.2f%n",
-                        v.getVin(), v.getYear(), v.getMake(), v.getModel(),
-                        v.getVehicleType(), v.getColor(),
-                        v.getOdometer(), v.getPrice()));
-            }
+    public void saveDealership(Dealership d) {
+        if (d == null) return;
+        try (PrintWriter out = new PrintWriter(new FileWriter(FILE_PATH))) {
+            out.println(d.getName() + "|" + d.getAddress() + "|" + d.getPhone());
+            for (Vehicle v : d.getAllVehicles()) out.println(v.toCsvString());
+        } catch (IOException e) {
+            System.err.println("Could not save inventory: " + e.getMessage());
         }
-        catch (IOException e) {
-            e.printStackTrace();
+    }
+
+    /* ---------- internals ---------- */
+
+    private Dealership loadFromFile(File file) {
+        try (Scanner in = new Scanner(file)) {
+            if (!in.hasNextLine()) {
+                System.err.println("ERROR: " + FILE_PATH + " is empty.");
+                return null;
+            }
+            String[] header = in.nextLine().split("\\|");
+            if (header.length < 3) {
+                System.err.println("ERROR: Invalid header line.");
+                return null;
+            }
+            Dealership d = new Dealership(header[0], header[1], header[2]);
+
+            while (in.hasNextLine()) {
+                String[] row = in.nextLine().trim().split("\\|");
+                if (row.length < 8) continue;   // skip malformed rows
+
+                String vin   = row[0];
+                int year     = Integer.parseInt(row[1]);
+                String make  = row[2];
+                String model = row[3];
+
+                // Columns 4 & 5: could be (type,color) OR (color,type).
+                String col4 = row[4];
+                String col5 = row[5];
+
+                VehicleType type;
+                String color;
+
+                // try col4 as enum first
+                try {
+                    type  = VehicleType.valueOf(col4.toUpperCase());
+                    color = col5;
+                } catch (IllegalArgumentException ex) {
+                    // swap: col5 must be the type
+                    color = col4;
+                    try {
+                        type = VehicleType.valueOf(col5.toUpperCase());
+                    } catch (IllegalArgumentException ex2) {
+                        // unknown type—default
+                        type = VehicleType.OTHER;
+                    }
+                }
+
+                int odo      = Integer.parseInt(row[6]);
+                double price = Double.parseDouble(row[7]);
+
+                d.addVehicle(new Vehicle(vin, year, make, model, color, type, odo, price));
+            }
+            return d;
+        } catch (FileNotFoundException e) {
+            System.err.println("ERROR: " + FILE_PATH + " not found.");
+            return null;
+        }
+    }
+
+    private void copyDefaultResource(File target) {
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(FILE_PATH)) {
+            if (is == null) return;       // no bundled default
+            try (OutputStream os = new FileOutputStream(target)) {
+                is.transferTo(os);
+            }
+            System.out.println("inventory.csv copied from resources.");
+        } catch (IOException e) {
+            System.err.println("Cannot bootstrap inventory.csv: " + e.getMessage());
         }
     }
 }

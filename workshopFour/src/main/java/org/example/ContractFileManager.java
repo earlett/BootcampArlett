@@ -1,79 +1,81 @@
 package org.example;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Scanner;
 
-//for your info, delete before submitting
-/**
- * Persists Sales and Lease contracts to a single pipe‑delimited CSV.
- * <p>
- * Column order (SALE lines, 18 columns total):
- * <pre>
- * TYPE | DATE | CUSTOMER | EMAIL | VIN | YEAR | MAKE | MODEL | VEHICLE_TYPE | COLOR |
- * ODOMETER | PRICE | SALES_TAX | RECORDING_FEE | PROCESSING_FEE | TOTAL | FINANCED | MONTHLY_PAYMENT
- * </pre>
- * Column order (LEASE lines, 16 columns total):
- * <pre>
- * TYPE | DATE | CUSTOMER | EMAIL | VIN | YEAR | MAKE | MODEL | VEHICLE_TYPE | COLOR |
- * ODOMETER | PRICE | RESIDUAL_VALUE | LEASE_FEE | TOTAL | MONTHLY_PAYMENT
- * </pre>
- */
 public class ContractFileManager {
-
-    private static final String FILE_PATH = "src/main/resources/contracts.csv";
+    private static final String FILE_PATH = "contracts.csv";
 
     public void saveContract(Contract c) {
-        try (FileWriter fw = new FileWriter(FILE_PATH, true)) {
+        ensureFileExists();
 
-            if (c instanceof SalesContract sc) {
-                fw.write(String.format(
-                        "%s|%s|%s|%s|%s|%d|%s|%s|%s|%s|%d|%.2f|%.2f|%.2f|%.2f|%.2f|%s|%.2f%n",
-                        sc.getType(),
-                        sc.getDate(),
-                        sc.getCustomerName(),
-                        sc.getCustomerEmail(),
-                        v(sc).getVin(),
-                        v(sc).getYear(),
-                        v(sc).getMake(),
-                        v(sc).getModel(),
-                        v(sc).getVehicleType(),
-                        v(sc).getColor(), // NEW ➜ color now included
-                        v(sc).getOdometer(),
-                        v(sc).getPrice(),
-                        sc.getSalesTaxAmount(),
-                        sc.getRecordingFee(),
-                        sc.getProcessingFee(),
-                        sc.getTotalPrice(),
-                        sc.isFinanced() ? "YES" : "NO",
-                        sc.getMonthlyPayment()));}
-            else if (c instanceof LeaseContract lc) {
-                fw.write(String.format(
-                        "%s|%s|%s|%s|%s|%d|%s|%s|%s|%s|%d|%.2f|%.2f|%.2f|%.2f|%.2f%n",
-                        lc.getType(),
-                        lc.getDate(),
-                        lc.getCustomerName(),
-                        lc.getCustomerEmail(),
-                        v(lc).getVin(),
-                        v(lc).getYear(),
-                        v(lc).getMake(),
-                        v(lc).getModel(),
-                        v(lc).getVehicleType(),
-                        v(lc).getColor(), // NEW ➜ color now included
-                        v(lc).getOdometer(),
-                        v(lc).getPrice(),
-                        lc.getExpectedEndingValue(),
-                        lc.getLeaseFee(),
-                        lc.getTotalPrice(),
-                        lc.getMonthlyPayment()));
+        try (PrintWriter out = new PrintWriter(new FileWriter(FILE_PATH, true))) {
+            if (c instanceof SalesContract s) {
+                String addOns = String.join(";", s.getAddOns().stream()
+                        .map(Enum::name)
+                        .toList());
+                out.printf("SALE|%s|%s|%s|%s|%.2f|%.2f|%.2f|%s%n",
+                        s.getContractDate(), s.getCustomerName(), s.getCustomerEmail(),
+                        s.getVehicle().toCsvString(),
+                        s.getSalesTax(), s.getRecordingFee(), s.getProcessingFee(),
+                        addOns);
+            } else if (c instanceof LeaseContract l) {
+                out.printf("LEASE|%s|%s|%s|%s|%.2f|%.2f%n",
+                        l.getContractDate(), l.getCustomerName(), l.getCustomerEmail(),
+                        l.getVehicle().toCsvString(),
+                        l.getExpectedEndingValue(), l.getLeaseFee());
             }
-        }
-        catch (IOException ex) {
-            System.out.println("Could not write contract: " + ex.getMessage());
+        } catch (IOException e) {
+            System.err.println("saveContract failed: " + e.getMessage());
         }
     }
 
-    // Shortcut to keep the formatter lines tidy
-    private Vehicle v(Contract c) {
-        return c.getVehicleSold();
+    // load all contracts
+    public ArrayList<Contract> loadContracts() {
+        ensureFileExists();
+
+        ArrayList<Contract> list = new ArrayList<>();
+        try (Scanner in = new Scanner(new File(FILE_PATH))) {
+            while (in.hasNextLine()) {
+                String line = in.nextLine().trim();
+                if (line.isEmpty() || !line.contains("|")) continue;
+                String[] p = line.split("\\|");
+
+                try {
+                    switch (p[0]) {
+                        case "SALE"  -> list.add(new SalesContract(p));
+                        case "LEASE" -> list.add(new LeaseContract(p));
+                        default      -> System.err.println("Unknown row skipped: " + line);
+                    }
+                } catch (Exception ex) {
+                    System.err.println("Bad contract row skipped: " + line);
+                }
+            }
+        } catch (FileNotFoundException ignored) { }
+        return list;
+    }
+
+    // copy default contracts.csv from resources if missing
+    private void ensureFileExists() {
+        File target = new File(FILE_PATH);
+        if (target.exists()) return;
+
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(FILE_PATH)) {
+            if (is == null) return;
+            try (OutputStream os = new FileOutputStream(target)) {
+                is.transferTo(os);
+            }
+            System.out.println("contracts.csv copied from resources.");
+        } catch (IOException e) {
+            System.err.println("Cannot bootstrap contracts.csv: " + e.getMessage());
+        }
     }
 }

@@ -2,6 +2,7 @@ package org.example;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Dealership {
     private String name;
@@ -15,105 +16,62 @@ public class Dealership {
         this.phone = phone;
     }
 
-    public String getName() {
-        return name;
+    public String getName() { return name; }
+    public String getAddress() { return address; }
+    public String getPhone() { return phone; }
+
+    public void addVehicle(Vehicle v) {
+        inventory.add(v);
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void removeVehicle(Vehicle v) {
+        inventory.remove(v);
     }
 
-    public String getAddress() {
-        return address;
+    public List<Vehicle> getAllVehicles() {
+        return new ArrayList<>(inventory);
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public Vehicle getVehicleByVin(String vin) {
+        return inventory.stream()
+            .filter(v -> v.getVin().equals(vin))
+            .findFirst().orElse(null);
     }
 
-    public String getPhone() {
-        return phone;
+    public List<Vehicle> getVehiclesByPrice(double maxPrice) {
+        return inventory.stream()
+            .filter(v -> v.getPrice() <= maxPrice)
+            .collect(Collectors.toList());
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public List<Vehicle> getVehiclesByMakeModel(String make, String model) {
+        return inventory.stream()
+            .filter(v -> v.getMake().equalsIgnoreCase(make)
+                      && v.getModel().equalsIgnoreCase(model))
+            .collect(Collectors.toList());
     }
 
-    public List<Vehicle> getVehiclesByPrice(double min, double max){
-        List<Vehicle> vehicles = new ArrayList<>();
-        for(Vehicle vehicle : inventory){
-            if(vehicle.getPrice() >= min && vehicle.getPrice() <= max){
-                vehicles.add(vehicle);
-            }
-        }
-
-        return vehicles;
+    public List<Vehicle> getVehiclesByYear(int year) {
+        return inventory.stream()
+            .filter(v -> v.getYear() == year)
+            .collect(Collectors.toList());
     }
 
-    public List<Vehicle> getVehiclesByMakeModel(String make, String model){
-        List<Vehicle> vehicles = new ArrayList<>();
-        for(Vehicle vehicle : inventory){
-            if(vehicle.getMake().equalsIgnoreCase(make) && vehicle.getModel().equalsIgnoreCase(model)){
-                vehicles.add(vehicle);
-            }
-        }
-
-        return vehicles;
+    public List<Vehicle> getVehiclesByColor(String color) {
+        return inventory.stream()
+            .filter(v -> v.getColor().equalsIgnoreCase(color))
+            .collect(Collectors.toList());
     }
 
-    public List<Vehicle> getVehiclesByYear(int min, int max){
-        List<Vehicle> vehicles = new ArrayList<>();
-        for(Vehicle vehicle : inventory){
-            if(vehicle.getYear() >= min && vehicle.getYear() <= max){
-                vehicles.add(vehicle);
-            }
-        }
-
-        return vehicles;
+    public List<Vehicle> getVehiclesByMileage(int maxMiles) {
+        return inventory.stream()
+            .filter(v -> v.getOdometer() <= maxMiles)
+            .collect(Collectors.toList());
     }
 
-    public List<Vehicle> getVehiclesByColor(String color){
-        ArrayList<Vehicle> vehicles = new ArrayList<>();
-        for(Vehicle vehicle : inventory){
-            if(vehicle.getColor().equalsIgnoreCase(color)){
-                vehicles.add(vehicle);
-            }
-        }
-
-        return vehicles;
-    }
-
-    public List<Vehicle> getVehiclesByMileage(int min, int max){
-        List<Vehicle> vehicles = new ArrayList<>();
-        for(Vehicle vehicle : inventory){
-            if(vehicle.getOdometer() >= min && vehicle.getOdometer() <= max){
-                vehicles.add(vehicle);
-            }
-        }
-
-        return vehicles;
-    }
-
-    public List<Vehicle> getVehiclesByType(VehicleType vehicleType){
-        List<Vehicle> vehicles = new ArrayList<>();
-        for(Vehicle vehicle : inventory){
-            if(vehicle.getVehicleType() == vehicleType){
-                vehicles.add(vehicle);
-            }
-        }
-
-        return vehicles;
-    }
-
-    public List<Vehicle> getAllVehicles(){
-        return this.inventory;
-    }
-
-    public void addVehicle(Vehicle vehicle){
-        this.inventory.add(vehicle);
-    }
-
-    public void removeVehicle(Vehicle vehicle){
-        this.inventory.remove(vehicle);
+    public List<Vehicle> getVehiclesByType(VehicleType type) {
+        return inventory.stream()
+            .filter(v -> v.getType() == type)
+            .collect(Collectors.toList());
     }
 }

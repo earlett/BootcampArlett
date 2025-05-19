@@ -2,8 +2,8 @@ package org.example;
 
 public class Main {
     public static void main(String[] args) {
-        UserInterface userInterface = new UserInterface();
-
-        userInterface.display();
+        UserInterface ui = new UserInterface();
+        ui.init();
+        ui.display();
     }
 }

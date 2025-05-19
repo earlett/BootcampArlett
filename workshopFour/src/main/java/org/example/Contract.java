@@ -1,31 +1,43 @@
 package org.example;
 
 public abstract class Contract {
-    private String date;          // YYYYMMDD
-    private String customerName;
-    private String customerEmail;
-    private Vehicle vehicleSold;
-    private double totalPrice;
-    private double monthlyPayment;
+    protected String contractDate;
+    protected String customerName;
+    protected String customerEmail;
+    protected Vehicle vehicle;
 
-    public Contract(String date, String customerName, String customerEmail, Vehicle vehicleSold) {
-        this.date = date;
+    public Contract(String contractDate,
+                    String customerName,
+                    String customerEmail,
+                    Vehicle vehicle) {
+        this.contractDate = contractDate;
         this.customerName = customerName;
         this.customerEmail = customerEmail;
-        this.vehicleSold = vehicleSold;
+        this.vehicle = vehicle;
     }
 
-    public String getDate() { return date; }
-    public String getCustomerName() { return customerName; }
-    public String getCustomerEmail() { return customerEmail; }
-    public Vehicle getVehicleSold() { return vehicleSold; }
+    public String getContractDate() {
+        return contractDate;
+    }
 
-    public double getTotalPrice()      { return totalPrice; }
-    protected void setTotalPrice(double totalPrice) { this.totalPrice = totalPrice; }
+    public String getCustomerName() {
+        return customerName;
+    }
 
-    public double getMonthlyPayment()  { return monthlyPayment; }
-    protected void setMonthlyPayment(double monthlyPayment) { this.monthlyPayment = monthlyPayment; }
+    public String getCustomerEmail() {
+        return customerEmail;
+    }
 
-    public abstract void calculatePayment();     // sets both totals
-    public abstract String getType();            // "SALE" or "LEASE"
+    public Vehicle getVehicle() {
+        return vehicle;
+    }
+
+    public abstract double calculatePayment();
+    public abstract String getType();
+
+    @Override
+    public String toString() {
+        return getType() + " Contract — " + vehicle.getVin()
+             + " $" + String.format("%.2f", calculatePayment());
+    }
 }
