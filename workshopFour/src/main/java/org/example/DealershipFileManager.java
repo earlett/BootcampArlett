@@ -49,7 +49,7 @@ public class DealershipFileManager {
 
             while (in.hasNextLine()) {
                 String[] row = in.nextLine().trim().split("\\|");
-                if (row.length < 8) continue;   // skip malformed rows
+                if (row.length > 8) continue;   // skip malformed rows
 
                 String vin   = row[0];
                 int year     = Integer.parseInt(row[1]);
