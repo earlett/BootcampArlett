@@ -1,0 +1,26 @@
+Evie's Way Deli RECEIPT
+Date: 05/30/2025 00:19:26
+Customer: bob
+
+Order Summary:
+
+Sandwich 1:
+Bread: rye
+Size: 8"
+Toasted: Yes
+Toppings: 
+  - ham ($2.00)
+  - onions
+  - lettuce
+  - cucumbers
+  - au jus
+Cost: $9.00
+
+Drinks:
+  - Large Drink ($3.00)
+Chips:
+  - Chips ($1.50)
+
+Total Cost: $13.50
+
+Thank you for choosing Evie's Way Deli!

@@ -1,0 +1,17 @@
+Order Summary:
+
+Sandwich 1:
+Bread: white
+Size: 7"
+Toasted: Yes
+Toppings: 
+  - lettuce
+  - peppers
+  - onions
+  - mushrooms
+  - steak ($7.00)
+  - american
+Cost: $7.00
+
+
+Total Cost: $7.00
