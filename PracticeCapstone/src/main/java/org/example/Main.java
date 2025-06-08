@@ -11,7 +11,7 @@ public class Main {
 
         while (true) {
             System.out.println();
-            System.out.println("Big Bank's Banking System");
+            System.out.println("Banking System");
             System.out.println("1. Transactions");
             System.out.println("2. View Ledger");
             System.out.println("3. Search by Vendor");
@@ -131,3 +131,4 @@ public class Main {
         }
     }
 }
+

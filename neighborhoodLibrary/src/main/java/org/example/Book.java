@@ -3,7 +3,7 @@ package org.example;
 public class Book {
     private int id;
     private String isbn;
-    private static String title;
+    private String title;
     private boolean isCheckedOut;
     private String checkedOutTo;
     private String shortSummary;
@@ -44,7 +44,7 @@ public class Book {
         this.isbn = isbn;
     }
 
-    public static String getTitle() {
+    public String getTitle() {
         return title;
     }
 
@@ -65,7 +65,7 @@ public class Book {
     }
 
     public void setCheckedOutTo(String checkedOuyTo) {
-        this.checkedOutTo = checkedOuyTo;
+        this.checkedOutTo = checkedOutTo;
     }
 
     public String getSummary() {

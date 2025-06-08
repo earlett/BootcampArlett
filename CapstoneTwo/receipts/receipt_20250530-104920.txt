@@ -1,0 +1,27 @@
+Evie's Way Deli RECEIPT
+Date: 05/30/2025 10:49:20
+Customer: evie
+
+Order Summary:
+
+Sandwich 1:
+Bread: wrap
+Size: 8"
+Toasted: No
+Toppings: 
+  - bacon ($2.00)
+  - swiss ($1.50)
+  - lettuce
+  - jalapeños
+  - cucumbers
+  - onions
+  - tomatoes
+  - vinaigrette
+Cost: $10.50
+
+Chips:
+  - Chips ($1.50)
+
+Total Cost: $12.00
+
+Thank you for choosing Evie's Way Deli!

@@ -48,18 +48,18 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
-            System.out.println("\nWelcome to the Library!\n" +
-                    "Please select an action from the menu:\n" +
-                    "1) Display All Books Available\n" +
-                    "2) Display Books Checked Out\n" +
-                    "3) Display Books by Genre\n" +
-                    "4) Search Books by Title\n" +
-                    "5) Check Out a Book\n" +
-                    "6) Return a Book\n" +
-                    "7) Exit");
+            System.out.println("Welcome to the Library! \n" +
+                    "Please select an action from the menu: \n" +
+                    "1) Display All Books Available \n" +
+                    "2) Display Books Checked Out \n" +
+                    "3) Display Books by Genre \n" +
+                    "4) Search Books by Title \n" +
+                    "5) Check Out a Book \n" +
+                    "6) Return a Book \n" +
+                    "7) Exit \n");
 
             int userSelection = scanner.nextInt();
-            scanner.nextLine();  // Consume newline
+            scanner.nextLine();
 
             switch (userSelection) {
                 case 1:
@@ -88,6 +88,7 @@ public class Main {
                     System.out.println("Invalid selection. Please try again.");
             }
         }
+
     }
 
     public static void displayAllBooks(Book[] inventory) {
@@ -151,7 +152,7 @@ public class Main {
     }
 
     public static void searchByTitle(Book[] inventory, Scanner scanner) {
-        System.out.print("\nEnter the title to search for: ");
+        System.out.print("\nEnter the title to search for: \n");
         String title = scanner.nextLine();
         boolean found = false;
 
@@ -168,13 +169,13 @@ public class Main {
     }
 
     public static void checkOutBook(Book[] inventory, Scanner scanner) {
-        System.out.print("\nEnter the title of the book to check out: ");
+        System.out.print("\nEnter the title of the book you would like to check out: \n");
         String title = scanner.nextLine();
-        boolean found = false;
+        boolean isCheckedOut = false;
 
         for (Book book : inventory) {
             if (book != null && book.getTitle().contains(title.toLowerCase())) {
-                found = true;
+                boolean found = true;
                 if (book.isCheckedOut()) {
                     System.out.println("Sorry, that book is already checked out.");
                 } else {
@@ -186,12 +187,12 @@ public class Main {
         }
 
         if (!found) {
-            System.out.println("Book not found in inventory.");
+            System.out.println("Book not available for checkout.");
         }
     }
 
     public static void returnBook(Book[] inventory, Scanner scanner) {
-        System.out.print("\nEnter the title of the book to return: ");
+        System.out.print("\nEnter the title of the book to return: \n");
         String title = scanner.nextLine();
         boolean found = false;
 
@@ -209,7 +210,7 @@ public class Main {
         }
 
         if (!found) {
-            System.out.println("Book not found in inventory.");
+            System.out.println("Book not available for checkout.");
         }
     }
 }

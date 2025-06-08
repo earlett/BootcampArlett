@@ -137,6 +137,8 @@ public class Main {
             if (price >= min && price <= max) {
                 matches.add(product);
             }
+
+            else System.out.println("Product Not found");
         }
         return matches;
     }
@@ -155,7 +157,6 @@ public class Main {
     public static void removeItemFromCart(ShoppingCart cart, String sku) {
         cart.removeProductFromCart(sku);
     }
-
     // View cart contents
     public static void viewCartContents(ShoppingCart cart) {
         List<Product> cartProducts = cart.getAllProducts();
@@ -170,7 +171,13 @@ public class Main {
 
     public static void checkout(ShoppingCart cart) {
         double total = cart.getCartTotal();
-        System.out.println("Your total is: $" + total);
-        System.out.println("Proceeding to checkout...");
+        if (total == 0) {
+            System.out.println("Your cart is empty. Nothing to checkout.");
+        } else {
+            System.out.println("Your total is: $" + total);
+            System.out.println("Proceeding to checkout...");
+            cart.clearCart();  // optional method you'd need to define
+            System.out.println("Thank you for your purchase!");
+        }
     }
 }

@@ -9,116 +9,134 @@ public class Main {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        Ledger ledger = Ledger.getInstance();
 
         while (true) {
-            System.out.println("Welcome to the Banking System.");
-            System.out.println("Please select an option:");
-            System.out.println("1. Add Deposit");
-            System.out.println("2. Make Payment");
-            System.out.println("3. View Ledger");
-            System.out.println("4. Search Transaction by Vendor");
-            System.out.println("5. Search Transaction by Year");
-            System.out.println("6. Exit");
+            System.out.println("welcome to the banking system.");
+            System.out.println("please select an option:");
+            System.out.println("1. record a transaction");
+            System.out.println("2. view ledger");
+            System.out.println("3. exit");
 
             int choice = 0;
             try {
                 choice = Integer.parseInt(scanner.nextLine());
             } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a number.");
+                System.out.println("invalid input. please enter a number.");
                 continue;
             }
 
             switch (choice) {
                 case 1:
-                    makeDeposit(scanner);
+                    recordTransaction(scanner, ledger);
                     break;
                 case 2:
-                    makePayment(scanner);
+                    viewLedger(scanner, ledger);
                     break;
                 case 3:
-                    viewLedger();
-                    break;
-                case 4:
-                    searchTransactionByVendor(scanner);
-                    break;
-                case 5:
-                    searchTransactionByYear(scanner);
-                    break;
-                case 6:
                     System.exit(0);
                     break;
                 default:
-                    System.out.println("Invalid option. Please try again.");
+                    System.out.println("invalid option. please try again.");
             }
         }
     }
 
-    // Custom method to add a deposit
-    public static void makeDeposit(Scanner scanner) {
-        System.out.println("\n--- Make a Deposit ---");
-        System.out.println("Enter the amount to deposit:");
+    public static void recordTransaction(Scanner scanner, Ledger ledger) {
+        System.out.println("--- record a transaction ---");
+
+        System.out.println("is this a credit or debit? (enter 'credit' or 'debit'):");
+        String type = scanner.nextLine().trim().toLowerCase();
+
+        if (!type.equals("credit") && !type.equals("debit")) {
+            System.out.println("invalid type. must be 'credit' or 'debit'.");
+            return;
+        }
+
+        System.out.println("enter the amount:");
         double amount = 0;
         try {
             amount = Double.parseDouble(scanner.nextLine());
         } catch (NumberFormatException e) {
-            System.out.println("Invalid input. Please enter a valid amount.");
+            System.out.println("invalid amount.");
             return;
         }
 
-        System.out.println("Enter the deposit method (Cash, Check, Money Order):");
-        String depositMethod = scanner.nextLine();
-
-        System.out.println("Enter the vendor name:");
-        String vendorName = scanner.nextLine();
-
-        Deposit deposit = new Deposit(LocalDate.now(), LocalTime.now(), "Deposit Transaction", vendorName, amount, depositMethod);
-        TransactionFileManager.appendTransaction(deposit);
-
-        System.out.println("Deposit made successfully!");
-    }
-
-    // Custom method to make a payment (payment transaction)
-    public static void makePayment(Scanner scanner) {
-        System.out.println("\n--- Make a Payment ---");
-        System.out.println("Enter the amount to pay:");
-        double amount = 0;
-        try {
-            amount = Double.parseDouble(scanner.nextLine());
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid input. Please enter a valid amount.");
-            return;
+        if (type.equals("debit")) {
+            amount *= -1;
         }
 
-        System.out.println("Enter the payment method (Cash, Credit, Debit):");
-        String paymentMethod = scanner.nextLine();
+        System.out.println("enter the transaction method (cash, check, credit, etc.):");
+        String method = scanner.nextLine().trim();
 
-        System.out.println("Enter the vendor name:");
-        String vendorName = scanner.nextLine();
+        String vendor = "";
+        if (!(type.equals("credit") && method.equalsIgnoreCase("cash"))) {
+            System.out.println("enter the vendor name:");
+            vendor = scanner.nextLine();
+        }
 
-        // Adjust amount to be negative for withdrawals (debited from the account)
-        amount = -1 * amount;  // Negating the amount
+        String description = type + " transaction";
 
-        Withdrawal payment = new Withdrawal(LocalDate.now(), LocalTime.now(), "Payment Transaction", vendorName, amount, paymentMethod);
-        TransactionFileManager.appendTransaction(payment);
+        Transaction transaction = new Transaction(
+                LocalDate.now(), LocalTime.now(),
+                description, vendor, amount, method, type
+        );
 
-        System.out.println("Payment made successfully!");
+        ledger.addTransaction(transaction);
+        System.out.println("transaction recorded successfully.");
+        System.out.println(transaction);
     }
 
-    // Custom method to view ledger (all transactions)
-    public static void viewLedger() {
-        System.out.println("\n--- View Ledger ---");
-        TransactionFileManager.viewTransactions();
+    public static void viewLedger(Scanner scanner, Ledger ledger) {
+        while (true) {
+            System.out.println("--- view ledger ---");
+            System.out.println("please select an option:");
+            System.out.println("1. view all transactions");
+            System.out.println("2. view all deposits");
+            System.out.println("3. view all withdrawals");
+            System.out.println("4. search by vendor");
+            System.out.println("5. search by year");
+            System.out.println("6. back to main menu");
+
+            int choice = 0;
+            try {
+                choice = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                System.out.println("invalid input. please enter a number.");
+                continue;
+            }
+
+            switch (choice) {
+                case 1:
+                    ledger.displayLedger();
+                    break;
+                case 2:
+                    ledger.displayDeposits();
+                    break;
+                case 3:
+                    ledger.displayWithdrawals();
+                    break;
+                case 4:
+                    searchTransactionByVendor(scanner, ledger);
+                    break;
+                case 5:
+                    searchTransactionByYear(scanner, ledger);
+                    break;
+                case 6:
+                    return;
+                default:
+                    System.out.println("invalid option. please try again.");
+            }
+        }
     }
 
-    // Custom method to search transactions by vendor
-    public static void searchTransactionByVendor(Scanner scanner) {
-        System.out.println("\n--- Search Transaction by Vendor ---");
-        System.out.println("Enter vendor name:");
+    public static void searchTransactionByVendor(Scanner scanner, Ledger ledger) {
+        System.out.println("enter vendor name:");
         String vendorName = scanner.nextLine();
 
-        List<Transaction> transactions = TransactionFileManager.searchByVendor(vendorName);
+        List<Transaction> transactions = ledger.searchByVendor(vendorName);
         if (transactions.isEmpty()) {
-            System.out.println("No transactions found for vendor: " + vendorName);
+            System.out.println("no transactions found for vendor: " + vendorName);
         } else {
             for (Transaction transaction : transactions) {
                 System.out.println(transaction);
@@ -126,21 +144,19 @@ public class Main {
         }
     }
 
-    // Custom method to search transactions by year
-    public static void searchTransactionByYear(Scanner scanner) {
-        System.out.println("\n--- Search Transaction by Year ---");
-        System.out.println("Enter the year:");
+    public static void searchTransactionByYear(Scanner scanner, Ledger ledger) {
+        System.out.println("enter the year:");
         int year = 0;
         try {
             year = Integer.parseInt(scanner.nextLine());
         } catch (NumberFormatException e) {
-            System.out.println("Invalid year input. Please enter a valid year.");
+            System.out.println("invalid year input. please enter a valid year.");
             return;
         }
 
-        List<Transaction> transactions = TransactionFileManager.searchByYear(year);
+        List<Transaction> transactions = ledger.searchByYear(year);
         if (transactions.isEmpty()) {
-            System.out.println("No transactions found for the year " + year);
+            System.out.println("no transactions found for the year " + year);
         } else {
             for (Transaction transaction : transactions) {
                 System.out.println(transaction);
@@ -148,3 +164,7 @@ public class Main {
         }
     }
 }
+
+
+
+
