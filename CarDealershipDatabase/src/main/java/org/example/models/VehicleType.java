@@ -1,0 +1,5 @@
+package org.example.models;
+
+public enum VehicleType {
+    SEDAN, SUV, TRUCK, COUPE, CONVERTIBLE, VAN, WAGON, MANUFACTURER_SPECIFIC, HYBRID, ELECTRIC, MOTORCYCLE, OTHER
+}
