@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public class CustomerDaoImpl implements CustomerDao {
 
-    /* ─────────────────────────── private mapper ─────────────────────────── */
+
     private Customer map(ResultSet rs) throws SQLException {
         return new Customer(
                 rs.getInt("CustomerID"),
@@ -22,9 +22,8 @@ public class CustomerDaoImpl implements CustomerDao {
                 rs.getString("Address"));
     }
 
-    /* ─────────────────────────── interface methods ──────────────────────── */
 
-    /** SELECT * FROM Customer WHERE Email = ? */
+
     @Override
     public Optional<Customer> getByEmail(String email) {
         String sql = "SELECT * FROM Customer WHERE Email = ?";
@@ -41,7 +40,6 @@ public class CustomerDaoImpl implements CustomerDao {
         }
     }
 
-    /** INSERT and return generated ID */
     @Override
     public int getOrCreate(Customer c) {
         // reuse getByEmail first
@@ -67,7 +65,6 @@ public class CustomerDaoImpl implements CustomerDao {
         }
     }
 
-    /** UPDATE by Email */
     @Override
     public boolean update(Customer c) {
         String sql = "UPDATE Customer SET FullName = ?, Phone = ?, Address = ? WHERE Email = ?";
@@ -85,7 +82,6 @@ public class CustomerDaoImpl implements CustomerDao {
         }
     }
 
-    /** DELETE by Email */
     @Override
     public boolean deleteByEmail(String email) {
         String sql = "DELETE FROM Customer WHERE Email = ?";

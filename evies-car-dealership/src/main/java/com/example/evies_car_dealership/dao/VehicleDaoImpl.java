@@ -58,7 +58,7 @@ public class VehicleDaoImpl implements VehicleDao {
         try (Connection c = DatabaseConnection.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
 
-            ps.setInt   (1, Integer.parseInt(v.vin()));
+            ps.setInt   (1, Integer.parseInt(v.getVin()));   // ← fixed
             ps.setString(2, v.getMake());
             ps.setString(3, v.getModel());
             ps.setDouble(4, v.getPrice());
@@ -90,7 +90,7 @@ public class VehicleDaoImpl implements VehicleDao {
             ps.setString(5, v.getColor());
             ps.setInt   (6, v.getOdometer());
             ps.setString(7, v.getType().name());
-            ps.setInt   (8, Integer.parseInt(v.vin()));
+            ps.setInt   (8, Integer.parseInt(v.getVin()));   // ← fixed
             ps.executeUpdate();
         } catch (SQLException ex) {
             ex.printStackTrace();

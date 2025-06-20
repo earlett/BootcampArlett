@@ -7,11 +7,9 @@ import java.util.List;
 
 public interface ContractDao {
 
-    //Commands
     void saveSalesContract(SalesContract contract);
     void saveLeaseContract(LeaseContract contract);
 
-    //Queries
     List<SalesContract> getSalesContractsByDealershipId(int dealershipId);
     List<LeaseContract> getLeaseContractsByDealershipId(int dealershipId);
 }
