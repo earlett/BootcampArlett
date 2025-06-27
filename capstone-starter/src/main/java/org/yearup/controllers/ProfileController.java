@@ -51,12 +51,10 @@ public class ProfileController {
         }
     }
 
-    // PUT /profile - Update current user's profile
     @PutMapping("")
     @PreAuthorize("isAuthenticated()")
     public void updateProfile(@RequestBody Profile profile, Principal principal) {
         try {
-            // Get the currently logged-in user's username
             String userName = principal.getName();
             User user = userDao.getByUserName(userName);
 
@@ -64,16 +62,13 @@ public class ProfileController {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
             }
 
-            // Make sure the profile belongs to the current user
             profile.setUserId(user.getId());
 
-            // Check if profile exists
             Profile existingProfile = profileDao.getByUserId(user.getId());
             if (existingProfile == null) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Profile not found");
             }
 
-            // Update the profile
             profileDao.update(profile);
 
         } catch (Exception e) {

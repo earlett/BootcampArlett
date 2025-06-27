@@ -44,14 +44,12 @@ public class OrdersController {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
             }
 
-            // Get the user's shopping cart
             ShoppingCart cart = shoppingCartDao.getByUserId(user.getId());
 
             if (cart.getItems().isEmpty()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Shopping cart is empty");
             }
 
-            // Get the user's profile for shipping address
             Profile profile = profileDao.getByUserId(user.getId());
 
             if (profile == null) {
